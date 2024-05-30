@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permutation Sampler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 20px;
+            cursor: pointer;
+        }
+        #output {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Permutation Sampler</h1>
+    <button id="sampleButton">Sample Permutation</button>
+    <div id="output">Click the button to sample a permutation</div>
+
+    <script>
+        function allPermutations(array) {
+            if (array.length === 1) return [array];
+            const out = [];
+            for (let i = 0; i < array.length; i++) {
+                const element = array[i];
+                const others = array.slice(0, i).concat(array.slice(i + 1));
+                const permutations = allPermutations(others);
+                permutations.forEach(p => {
+                    out.push([element].concat(p));
+                });
+            }
+            return out;
+        }
+
+        class Sample {
+            constructor(nElements) {
+                const s = Array.from({ length: nElements }, (_, i) => i + 1);
+                this.permutations = allPermutations(s);
+                this.usableIndices = Array.from({ length: this.permutations.length }, (_, i) => i);
+            }
+
+            sample() {
+                if (this.usableIndices.length === 0) {
+                    return null;
+                }
+                const sampledIndex = Math.floor(Math.random() * this.usableIndices.length);
+                const index = this.usableIndices.splice(sampledIndex, 1)[0];
+                return this.permutations[index];
+            }
+        }
+
+        const sampler = new Sample(4); // Adjust the number of elements as needed
+
+        document.getElementById('sampleButton').addEventListener('click', () => {
+            const result = sampler.sample().slice(0,3);
+            const output = document.getElementById('output');
+            if (result) {
+                output.textContent = `Sampled Permutation: ${result.join(', ')}`;
+            } else {
+                output.textContent = 'No more permutations available';
+            }
+        });
+    </script>
+</body>
+</html>
